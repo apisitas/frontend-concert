@@ -1,30 +1,29 @@
 // components/Layout.tsx
-import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import { FaHome, FaHistory, FaUserAlt, FaSignOutAlt } from 'react-icons/fa'; // icons
+import { FaHome, FaHistory, FaUserAlt, FaSignOutAlt } from 'react-icons/fa';
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+export default function Layout({ children }: LayoutProps) {
     return (
-        <div className="d-flex" style={{ minHeight: '100vh' }}>
+        <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
             {/* Sidebar */}
             <div
                 className="d-flex flex-column justify-content-between p-3"
                 style={{
                     width: '250px',
-                    backgroundColor: '#ffffff', // white background
+                    backgroundColor: '#ffffff',
                     borderRight: '1px solid #ddd',
+                    flexShrink: 0, // prevent shrinking
                 }}
             >
-                <div>
+                <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 80px)' }}>
                     {/* Sidebar Header */}
                     <div className="d-flex align-items-center mb-4">
-                        {/* Invisible placeholder to align with icons */}
                         <span style={{ width: '1.25rem', display: 'inline-block' }}></span>
                         <h3 className="mb-0">Admin</h3>
                     </div>
@@ -32,25 +31,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     {/* Menu Items */}
                     <ul className="nav flex-column">
                         <li className="nav-item mb-2">
-                            <Link href="/admin" className="nav-link text-dark d-flex align-items-center">
-                                <FaHome className="me-2" /> {/* Home icon */}
-                                Home
+                            <Link href="/" className="nav-link text-dark d-flex align-items-center">
+                                <FaHome className="me-2" /> Home
                             </Link>
                         </li>
                         <li className="nav-item mb-2">
-                            <Link href="/admin/concerts" className="nav-link text-dark d-flex align-items-center">
-                                <FaHistory className="me-2" /> {/* History icon */}
-                                History
+                            <Link href="/admin/history" className="nav-link text-dark d-flex align-items-center">
+                                <FaHistory className="me-2" /> History
                             </Link>
                         </li>
                         <li className="nav-item mb-2">
                             <Link href="/user" className="nav-link text-dark d-flex align-items-center">
-                                <FaUserAlt className="me-2" /> {/* Switch to user icon */}
-                                Switch To User
+                                <FaUserAlt className="me-2" /> Switch To User
                             </Link>
                         </li>
                     </ul>
-
                 </div>
 
                 {/* Logout Button at bottom */}
@@ -68,9 +63,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-grow-1 p-4 bg-light">{children}</div>
+            <div
+                className="flex-grow-1 bg-light p-4"
+                style={{
+                    overflowY: 'auto', // scrollable content
+                    height: '100vh',
+                }}
+            >
+                {children}
+            </div>
         </div>
     );
-};
-
-export default Layout;
+}

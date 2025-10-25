@@ -2,24 +2,37 @@
 import { useState } from 'react';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 import { FaSave } from 'react-icons/fa';
-import axios from 'axios';
+import api from "@/services/api";
 
-export default function FormConcert() {
+interface FormConcertProps {
+  onCreated?: () => void; // refresh list
+  onSwitchTab?: (key: string) => void; // switch tab
+}
+
+export default function FormConcert({ onCreated, onSwitchTab }: FormConcertProps) {
     const [newConcert, setNewConcert] = useState({
         name: '',
         description: '',
         seats: '',
     });
 
-    // Create new concert
     const handleCreate = async () => {
         try {
-            await axios.post('/api/concerts', {
+            await api.post('/api/concerts', {
                 name: newConcert.name,
                 description: newConcert.description,
                 totalSeats: Number(newConcert.seats),
             });
+
+            // Reset form
             setNewConcert({ name: '', description: '', seats: '' });
+
+            // Refresh parent list
+            if (onCreated) onCreated();
+
+            // Switch to overview/list tab
+            if (onSwitchTab) onSwitchTab('list');
+
         } catch (error) {
             console.error(error);
         }
@@ -66,7 +79,8 @@ export default function FormConcert() {
             <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
                 <Form.Control
-                    type="text"
+                    as="textarea"
+                    rows={3}
                     value={newConcert.description}
                     onChange={(e) =>
                         setNewConcert({ ...newConcert, description: e.target.value })
@@ -75,10 +89,12 @@ export default function FormConcert() {
                 />
             </Form.Group>
 
-            <Button type="submit" variant="primary" className="d-flex align-items-center">
-                <FaSave className="me-2" /> {/* margin to the right of the icon */}
-                Save
-            </Button>
+            <div className="d-flex justify-content-end">
+                <Button type="submit" variant="primary" className="d-flex align-items-center">
+                    <FaSave className="me-2" />
+                    Save
+                </Button>
+            </div>
         </Form>
     );
 }
