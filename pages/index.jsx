@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Row, Col, Card } from 'react-bootstrap';
-import Layout from '../components/Layout';
-import { FaChair, FaTicketAlt, FaTimesCircle } from 'react-icons/fa';
-import FormConcert from '../components/admin/FormConcert';
-import api from "../services/api";
-import ConfirmModal from '../components/ConfirmModal';
-import ConcertCard from '../components/admin/ConcertCard';
+import Layout from '@/components/Layout';
+import { FaChair, FaTicketAlt, FaTimesCircle, FaRegUser } from 'react-icons/fa';
+import FormConcert from '@/components/admin/FormConcert';
+import api from "@/services/api";
+import ConfirmModal from '@/components/ConfirmModal';
+import ConcertCard from '@/components/admin/ConcertCard';
 
 export default function ManageConcerts() {
     const [key, setKey] = useState('list'); // active tab
@@ -25,7 +25,7 @@ export default function ManageConcerts() {
             console.error(error);
         }
     };
-    
+
     const fetchStats = async () => {
         try {
             const res = await api.get('/api/concerts/stats'); // adjust endpoint
@@ -53,22 +53,21 @@ export default function ManageConcerts() {
             {/* Stats Cards */}
             <Row className="my-4">
                 {[
-                    { icon: <FaChair size={30} />, label: 'Total Seats', value: totalSeats },
-                    { icon: <FaTicketAlt size={30} />, label: 'Reserved', value: totalReserve },
-                    { icon: <FaTimesCircle size={30} />, label: 'Cancelled', value: totalCancel },
+                    { color: 'primary', icon: <FaRegUser size={30} />, label: 'Total Seats', value: totalSeats },
+                    { color: 'success', icon: <FaTicketAlt size={30} />, label: 'Reserved', value: totalReserve },
+                    { color: 'danger', icon: <FaTimesCircle size={30} />, label: 'Cancelled', value: totalCancel },
                 ].map((stat, idx) => (
                     <Col key={idx} md={4} className="mb-3">
-                        <Card className="shadow-sm">
+                        <Card className={`shadow-sm text-white bg-${stat.color} border-0`}>
                             <Card.Body className="d-flex flex-column align-items-center">
-                                <div className="mb-2 text-primary">{stat.icon}</div>
-                                <Card.Title>{stat.label}</Card.Title>
+                                <div className="mb-2">{stat.icon}</div>
+                                <Card.Title className="fw-semibold">{stat.label}</Card.Title>
                                 <Card.Text className="display-6">{stat.value}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
-
             {/* Tabs */}
             <Tabs activeKey={key} onSelect={(k) => setKey(k || 'list')} className="mb-3">
                 {/* Concert List */}
@@ -99,7 +98,10 @@ export default function ManageConcerts() {
                 concertId={selectedConcert?.id}
                 concertName={selectedConcert?.name}
                 onClose={() => setShowConfirm(false)}
-                onDeleted={fetchConcerts} // refresh list after delete
+                onDeleted={() => {
+                    fetchConcerts(); // refresh list
+                    fetchStats();    // refresh stats
+                }}
             />
         </Layout>
     );

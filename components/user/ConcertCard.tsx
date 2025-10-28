@@ -1,24 +1,47 @@
-// interface MyReservation {
-//   concert: string;
-//   seatNumber: number;
-// }
+import { Card, Button } from 'react-bootstrap';
+import { FaUser } from 'react-icons/fa';
+import React from 'react';
 
-// export default function MyReservations({ reservations }: { reservations: MyReservation[] }) {
-//   const handleCancel = (concert: string) => {
-//     console.log('Cancel reservation for concert:', concert);
-//   };
+interface Concert {
+  id: string | number;
+  name: string;
+  description: string;
+  totalSeats: number;
+  isReserved?: boolean; // <-- true if user already reserved
+}
 
-//   return (
-//     <div>
-//       <h3>My Reservations</h3>
-//       <ul className="list-group">
-//         {reservations.map((r, idx) => (
-//           <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
-//             {r.concert} - Seat {r.seatNumber}
-//             <button className="btn btn-danger btn-sm" onClick={() => handleCancel(r.concert)}>Cancel</button>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
+interface ConcertCardUserProps {
+  concert: Concert;
+  isReserved: boolean;
+  onReserve: (concert: Concert) => void;
+  onCancel: (concert: Concert) => void;
+}
+
+export default function ConcertCardUser({ concert, isReserved, onReserve, onCancel }: ConcertCardUserProps) {
+  return (
+    <Card key={concert.id} className="shadow-sm mb-3">
+      <Card.Body>
+        <Card.Title>{concert.name}</Card.Title>
+        <Card.Text>{concert.description}</Card.Text>
+
+        <div className="d-flex align-items-center justify-content-between mt-3">
+          <div className="d-flex align-items-center">
+            <FaUser className="me-1 text-primary" />
+            <span>{concert.totalSeats}</span>
+          </div>
+
+          {isReserved ? (
+            <Button variant="danger" size="sm" onClick={() => onCancel(concert)}>
+              Cancel
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" onClick={() => onReserve(concert)}>
+              Reserve
+            </Button>
+          )}
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
+

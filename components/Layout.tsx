@@ -1,77 +1,81 @@
-// components/Layout.tsx
+'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Link from 'next/link';
-import { Button } from 'react-bootstrap';
-import { FaHome, FaHistory, FaUserAlt, FaSignOutAlt } from 'react-icons/fa';
+import { Button, Offcanvas } from 'react-bootstrap';
+import { FaBars } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import ToastMessage from '@/components/ToastMessage';
+import SidebarContent from '@/components/SidebarContent';
 
 interface LayoutProps {
-    children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-    return (
-        <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
-            {/* Sidebar */}
-            <div
-                className="d-flex flex-column justify-content-between p-3"
-                style={{
-                    width: '250px',
-                    backgroundColor: '#ffffff',
-                    borderRight: '1px solid #ddd',
-                    flexShrink: 0, // prevent shrinking
-                }}
-            >
-                <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 80px)' }}>
-                    {/* Sidebar Header */}
-                    <div className="d-flex align-items-center mb-4">
-                        <span style={{ width: '1.25rem', display: 'inline-block' }}></span>
-                        <h3 className="mb-0">Admin</h3>
-                    </div>
+	const [role, setRole] = useState<'admin' | 'user'>('admin');
+	const [showSidebar, setShowSidebar] = useState(false);
+	const router = useRouter();
 
-                    {/* Menu Items */}
-                    <ul className="nav flex-column">
-                        <li className="nav-item mb-2">
-                            <Link href="/" className="nav-link text-dark d-flex align-items-center">
-                                <FaHome className="me-2" /> Home
-                            </Link>
-                        </li>
-                        <li className="nav-item mb-2">
-                            <Link href="/admin/history" className="nav-link text-dark d-flex align-items-center">
-                                <FaHistory className="me-2" /> History
-                            </Link>
-                        </li>
-                        <li className="nav-item mb-2">
-                            <Link href="/user" className="nav-link text-dark d-flex align-items-center">
-                                <FaUserAlt className="me-2" /> Switch To User
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
+	useEffect(() => {
+		const storedRole = localStorage.getItem('role') as 'admin' | 'user' | null;
+		if (storedRole) setRole(storedRole);
+	}, []);
 
-                {/* Logout Button at bottom */}
-                <div className="mt-4">
-                    <Button
-                        variant="outline-danger"
-                        className="w-100 d-flex align-items-center justify-content-center"
-                        onClick={() => {
-                            alert('Logged out!');
-                        }}
-                    >
-                        <FaSignOutAlt className="me-2" /> Logout
-                    </Button>
-                </div>
-            </div>
+	const switchRole = () => {
+		if (role === 'admin') {
+			localStorage.setItem('role', 'user');
+			setRole('user');
+			router.push('/user');
+		} else {
+			localStorage.setItem('role', 'admin');
+			setRole('admin');
+			router.push('/');
+		}
+	};
 
-            {/* Main Content */}
-            <div
-                className="flex-grow-1 bg-light p-4"
-                style={{
-                    overflowY: 'auto', // scrollable content
-                    height: '100vh',
-                }}
-            >
-                {children}
-            </div>
-        </div>
-    );
+	const toggleSidebar = () => setShowSidebar(!showSidebar);
+
+	return (
+		<div className="d-flex min-vh-100 flex-column flex-md-row">
+			{/* Mobile hamburger */}
+			<Button
+				variant="primary"
+				className="d-md-none m-2"
+				onClick={toggleSidebar}
+			>
+				<FaBars /> Menu
+			</Button>
+
+			{/* Desktop sticky sidebar */}
+			<div
+				className="d-none d-md-flex flex-column justify-content-between bg-white p-4 position-sticky top-0"
+				style={{
+					width: '280px',        // fixed width
+					flexShrink: 0,         // prevents it from shrinking
+					height: '100vh',       // full viewport height
+					borderRight: '1px solid #ddd',
+				}}
+			>
+				<SidebarContent role={role} switchRole={switchRole} />
+			</div>
+
+			{/* Mobile Offcanvas sidebar */}
+			<Offcanvas show={showSidebar} onHide={toggleSidebar} className="d-md-none">
+				{/* <Offcanvas.Header closeButton>
+					<Offcanvas.Title>{role === 'admin' ? 'Admin' : 'User'}</Offcanvas.Title>
+				</Offcanvas.Header> */}
+				<Offcanvas.Body>
+					<SidebarContent role={role} switchRole={switchRole} onLinkClick={toggleSidebar} />
+				</Offcanvas.Body>
+			</Offcanvas>
+
+			{/* Main content */}
+			<div className="flex-grow-1 bg-light p-3" style={{ overflowY: 'auto' }}>
+				{children}
+			</div>
+
+			{/* Toast */}
+			<ToastMessage />
+		</div>
+	);
 }

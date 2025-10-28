@@ -1,0 +1,11 @@
+/* Remove blue background on click/focus/active for all sidebar items */
+.sidebar-item,
+.sidebar-item:focus,
+.sidebar-item:active,
+.sidebar-item:hover,
+.sidebar-item.active {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}

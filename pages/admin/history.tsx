@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Table, Card } from 'react-bootstrap';
 import api from '@/services/api';
-import { FaUser, FaMusic, FaCalendarAlt } from 'react-icons/fa';
 
 interface Reservation {
     id: number;
@@ -32,7 +31,6 @@ export default function History() {
     return (
         <Layout>
             <h2>Reservation History</h2>
-
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
